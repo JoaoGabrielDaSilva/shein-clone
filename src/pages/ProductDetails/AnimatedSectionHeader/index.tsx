@@ -15,6 +15,7 @@ import {
   View,
   ViewStyle,
 } from "react-native";
+import { RectButton } from "react-native-gesture-handler";
 import Animated, {
   call,
   Extrapolate,
@@ -41,6 +42,7 @@ type Props = {
     label: string;
   }[];
   breakPoints: number[];
+  onPress: () => void;
 };
 
 const { width, height } = Dimensions.get("window");
@@ -50,9 +52,8 @@ export const AnimatedSectionHeader = ({
   style,
   options,
   breakPoints,
+  onPress,
 }: Props) => {
-  const measures = useSharedValue([]);
-
   const breakPointsMap = useMemo(() => {
     return breakPoints.reduce((acc, item, index, array) => {
       const isFirst = index === 0;
@@ -73,6 +74,8 @@ export const AnimatedSectionHeader = ({
       return a;
     }, []);
   }, []);
+
+  console.log(breakPointsMap);
 
   // const measureOptions = () => {
   //   "worklet";
@@ -95,7 +98,7 @@ export const AnimatedSectionHeader = ({
     return {
       opacity: interpolate(
         animatedValue.value,
-        [0, height * 0.2, height * 0.25],
+        [0, height * 0.25 - 10, height * 0.25],
         [0, 0, 1]
       ),
     };
@@ -127,11 +130,13 @@ export const AnimatedSectionHeader = ({
   return (
     <Animated.View style={[styles.sections, opacityAnimations, style]}>
       {options.map((item, index) => (
-        <Animated.View style={styles.option} key={index}>
-          <Text ref={item.ref} style={styles.optionText}>
-            {item.label}
-          </Text>
-        </Animated.View>
+        <RectButton onPress={onPress} key={index} style={styles.option}>
+          <Animated.View>
+            <Text ref={item.ref} style={styles.optionText}>
+              {item.label}
+            </Text>
+          </Animated.View>
+        </RectButton>
       ))}
       <Animated.View style={[styles.indicator, indicatorStyles]} />
     </Animated.View>
@@ -150,6 +155,7 @@ const styles = StyleSheet.create({
   },
   option: {
     flex: 1,
+    paddingVertical: 10,
     alignItems: "center",
   },
   optionText: {

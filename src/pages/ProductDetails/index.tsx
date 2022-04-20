@@ -1,12 +1,9 @@
-import React, { RefObject, useState } from "react";
+import React, { useDebugValue, useEffect, useRef, useState } from "react";
 import {
   Dimensions,
   FlatList,
   Image,
-  ListRenderItem,
   ListRenderItemInfo,
-  ScrollView,
-  ScrollViewBase,
   StyleSheet,
   Text,
   View,
@@ -14,12 +11,14 @@ import {
 import Animated, {
   Extrapolate,
   interpolate,
-  interpolateColor,
+  measure,
+  runOnJS,
+  runOnUI,
   useAnimatedRef,
   useAnimatedScrollHandler,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
-  withSequence,
   withTiming,
 } from "react-native-reanimated";
 import Constants from "expo-constants";
@@ -29,6 +28,8 @@ import { ProductSize } from "../../models/Product";
 import { AnimatedSectionHeader } from "./AnimatedSectionHeader";
 import { Button } from "../../components/Button";
 import { Ionicons } from "@expo/vector-icons";
+import { Shipping } from "./Shipping";
+import { Comments } from "./Comments";
 
 const productImages = [
   "https://img.ltwebstatic.com/images3_pi/2022/01/10/1641784718a03e2e7a473592c5e14f5b2253f06e09.webp",
@@ -123,13 +124,42 @@ const AnimatedIcon = Animated.createAnimatedComponent(Ionicons);
 
 const { width, height } = Dimensions.get("window");
 
+const HEADER_HEIGHT = 15;
+
 export const ProductDetails = (props) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const scroll = useSharedValue(0);
   const scale = useSharedValue(1);
 
-  const layoutBreakpoints = [200, 500];
+  const commentsRef = useRef<View>();
+
+  const [measures, setMeasures] = useState([]);
+
+  const layoutBreakpoints = [measures[0]?.commentsSectionY || 0, 1400];
+
+  const measureSections = () => {
+    try {
+      commentsRef.current.measure((x, y, width, height, pageX, pageY) => {
+        if (
+          !measures.some((item) => item.hasOwnProperty("commentsSectionY")) &&
+          pageY !== 0
+        ) {
+          measures.push({
+            commentsSectionY: pageY / 2 - HEADER_HEIGHT,
+          });
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  console.log("m", measures);
+
+  useEffect(() => {
+    measureSections();
+  }, []);
 
   const toggleFavoriteFavorite = () => {
     scale.value = 0;
@@ -143,6 +173,7 @@ export const ProductDetails = (props) => {
       const offset = e.contentOffset.y;
 
       scroll.value = offset;
+      console.log(offset);
     },
   });
 
@@ -172,7 +203,7 @@ export const ProductDetails = (props) => {
     return {
       opacity: interpolate(
         scroll.value,
-        [0, height * 0.2, height * 0.25],
+        [0, height * 0.25 - 10, height * 0.25],
         [0, 0, 1]
       ),
     };
@@ -245,7 +276,8 @@ export const ProductDetails = (props) => {
           numberOfReviews={17}
           sizes={sizes}
         />
-
+        <Shipping />
+        <Comments ref={commentsRef} />
         <Text>123</Text>
         <Text>123</Text>
         <Text>123</Text>
@@ -360,7 +392,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     bottom: 0,
     marginBottom: 15,
-    backgroundColor: "#939393",
+    backgroundColor: "#0000006e",
     paddingVertical: 2.5,
     paddingHorizontal: 5,
     borderRadius: 10,
