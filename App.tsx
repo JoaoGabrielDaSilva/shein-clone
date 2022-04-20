@@ -1,10 +1,10 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { StyleSheet } from "react-native";
-import { Feed } from "./src/pages";
+import { StyleSheet, View } from "react-native";
+import { Routes } from "./src/routes.ts";
 
 export default function App() {
-  return <Feed />;
+  return <Routes />;
 }
 
 const styles = StyleSheet.create({
