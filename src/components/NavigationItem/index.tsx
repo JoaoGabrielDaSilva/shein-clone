@@ -37,7 +37,9 @@ export const NavigationItem = ({
         <Text style={[sizes[size]]}>{text}</Text>
 
         <View style={styles.rightSide}>
-          <Text style={styles.extraRightText}>{extraRightText}</Text>
+          <Text style={styles.extraRightText} numberOfLines={1}>
+            {extraRightText}
+          </Text>
           <Ionicons name="chevron-forward" style={styles.arrowIcon} />
         </View>
       </View>
@@ -55,17 +57,21 @@ const styles = StyleSheet.create({
     borderColor: "transparent",
   },
   rightSide: {
+    maxWidth: "50%",
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
   },
   arrowIcon: {
     color: "#9a9a9a",
     fontSize: 18,
+    alignSelf: "flex-end",
   },
   extraRightTextWrapper: {},
 
   extraRightText: {
     color: "#9a9a9a",
+    alignSelf: "flex-end",
   },
 });
 

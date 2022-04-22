@@ -2,27 +2,35 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 
-type Props = {
-  note: number;
+type Size = "default" | "big";
+
+const sizes = {
+  default: 18,
+  big: 25,
 };
 
-export const ReviewStars = ({ note }: Props) => {
+type Props = {
+  note: number;
+  size: Size;
+};
+
+export const ReviewStars = ({ note, size = "default" }: Props) => {
   const a = Array.from({ length: 5 });
   return (
-    <View style={styles.row}>
+    <View style={styles().row}>
       {a.map((_, index) =>
         index + 1 <= note ? (
           <Ionicons
             key={index}
             name="star"
-            style={styles.star}
+            style={styles(size).star}
             color="#ffe100"
           />
         ) : (
           <Ionicons
             key={index}
             name="star-outline"
-            style={styles.star}
+            style={styles(size).star}
             color="#ffe100"
           />
         )
@@ -31,12 +39,13 @@ export const ReviewStars = ({ note }: Props) => {
   );
 };
 
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  star: {
-    fontSize: 13,
-  },
-});
+const styles = (size?: Size) =>
+  StyleSheet.create({
+    row: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    star: {
+      fontSize: sizes[size],
+    },
+  });

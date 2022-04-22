@@ -1,4 +1,11 @@
-import React, { useDebugValue, useEffect, useRef, useState } from "react";
+import React, {
+  useDebugValue,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Dimensions,
   FlatList,
@@ -132,34 +139,11 @@ export const ProductDetails = (props) => {
   const scroll = useSharedValue(0);
   const scale = useSharedValue(1);
 
-  const commentsRef = useRef<View>();
+  const productRef = useAnimatedRef<View>();
+  const commentsRef = useAnimatedRef<View>();
+  const reviewsRef = useAnimatedRef<View>();
 
-  const [measures, setMeasures] = useState([]);
-
-  const layoutBreakpoints = [measures[0]?.commentsSectionY || 0, 1400];
-
-  const measureSections = () => {
-    try {
-      commentsRef.current.measure((x, y, width, height, pageX, pageY) => {
-        if (
-          !measures.some((item) => item.hasOwnProperty("commentsSectionY")) &&
-          pageY !== 0
-        ) {
-          measures.push({
-            commentsSectionY: pageY / 2 - HEADER_HEIGHT,
-          });
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  console.log("m", measures);
-
-  useEffect(() => {
-    measureSections();
-  }, []);
+  const sectionsBreakPoints = [0, 623, 2423];
 
   const toggleFavoriteFavorite = () => {
     scale.value = 0;
@@ -216,7 +200,10 @@ export const ProductDetails = (props) => {
   });
 
   return (
-    <View style={{ marginTop: Constants.statusBarHeight, flex: 1 }}>
+    <Animated.View
+      style={{ marginTop: Constants.statusBarHeight, flex: 1 }}
+      ref={productRef}
+    >
       <Navbar
         {...props}
         animatedValue={scroll.value}
@@ -233,18 +220,21 @@ export const ProductDetails = (props) => {
         options={[
           {
             label: "Mercadoria",
-            ref: useAnimatedRef(),
+            ref: productRef,
+            onPress: () => {},
           },
           {
             label: "Comentários",
-            ref: useAnimatedRef(),
+            ref: commentsRef,
+            onPress: () => {},
           },
           {
             label: "Recomendar",
-            ref: useAnimatedRef(),
+            ref: reviewsRef,
+            onPress: () => {},
           },
         ]}
-        breakPoints={layoutBreakpoints}
+        breakPoints={sectionsBreakPoints}
       />
 
       <Animated.ScrollView
@@ -338,7 +328,7 @@ export const ProductDetails = (props) => {
         <Text>123</Text>
         <Text>123</Text>
         <Text>123</Text>
-        <Text>123</Text>
+        <Text ref={reviewsRef}>123</Text>
         <Text>123</Text>
         <Text>123</Text>
         <Text>123</Text>
@@ -376,7 +366,7 @@ export const ProductDetails = (props) => {
           justifyContent="center"
         />
       </View>
-    </View>
+    </Animated.View>
   );
 };
 
