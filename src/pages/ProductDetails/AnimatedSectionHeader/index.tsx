@@ -17,23 +17,11 @@ import {
 } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
 import Animated, {
-  call,
-  Extrapolate,
   interpolate,
-  measure,
-  runOnJS,
-  runOnUI,
   SharedValue,
-  useAnimatedReaction,
-  useAnimatedRef,
   useAnimatedStyle,
-  useCode,
-  useDerivedValue,
-  useSharedValue,
-  withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { useDidUpdateEffect } from "../../../hooks/UseIsMount";
 
 type Props = {
   animatedValue: SharedValue<number>;
@@ -55,26 +43,31 @@ export const AnimatedSectionHeader = ({
   breakPoints,
 }: Props) => {
   const breakPointsMap = useMemo(() => {
-    return breakPoints.reduce((acc, item, index, array) => {
-      const isLast = index === array.length - 1;
+    return (
+      breakPoints &&
+      breakPoints.reduce((acc, item, index, array) => {
+        const isLast = index === array.length - 1;
 
-      const items = [...acc];
+        const items = [...acc];
 
-      if (item === 0) {
-        items.push(0);
+        if (item === 0) {
+          items.push(0);
+          return items;
+        }
+
+        items.push(item - 0.1, item);
+
+        if (isLast) {
+          items.push(item);
+          return items;
+        }
+
         return items;
-      }
-
-      items.push(item - 0.1, item);
-
-      if (isLast) {
-        items.push(item);
-        return items;
-      }
-
-      return items;
-    }, []);
+      }, [])
+    );
   }, []);
+
+  console.log(breakPointsMap);
 
   const opacityAnimations = useAnimatedStyle(() => {
     return {

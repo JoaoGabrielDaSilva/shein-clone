@@ -36,7 +36,8 @@ import { AnimatedSectionHeader } from "./AnimatedSectionHeader";
 import { Button } from "../../components/Button";
 import { Ionicons } from "@expo/vector-icons";
 import { Shipping } from "./Shipping";
-import { Comments } from "./Comments";
+import { CommentsSection } from "./CommentsSection";
+import { SuggestionsSection } from "./SuggestionsSection";
 
 const productImages = [
   "https://img.ltwebstatic.com/images3_pi/2022/01/10/1641784718a03e2e7a473592c5e14f5b2253f06e09.webp",
@@ -131,19 +132,37 @@ const AnimatedIcon = Animated.createAnimatedComponent(Ionicons);
 
 const { width, height } = Dimensions.get("window");
 
-const HEADER_HEIGHT = 15;
-
 export const ProductDetails = (props) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const scroll = useSharedValue(0);
   const scale = useSharedValue(1);
 
-  const productRef = useAnimatedRef<View>();
-  const commentsRef = useAnimatedRef<View>();
-  const reviewsRef = useAnimatedRef<View>();
+  const productRef = useAnimatedRef<Animated.View>();
+  const commentsRef = useAnimatedRef<Animated.View>();
+  const suggestionsRef = useAnimatedRef<Animated.View>();
 
-  const sectionsBreakPoints = [0, 623, 2423];
+  const sectionsBreakPoints = [0, 1];
+  const [sectionsMeasures, setSectionsMeasures] = useState(null);
+
+  const getMeasures = () => {
+    "worklet";
+
+    const data = [commentsRef, suggestionsRef];
+
+    const measures = [0];
+
+    data.forEach((item) => {
+      measures.push(measure(item).pageY);
+    });
+
+    runOnJS(setSectionsMeasures)(measures);
+  };
+  console.log("SECTIONS", sectionsMeasures);
+
+  useEffect(() => {
+    runOnUI(getMeasures)();
+  }, []);
 
   const toggleFavoriteFavorite = () => {
     scale.value = 0;
@@ -161,25 +180,13 @@ export const ProductDetails = (props) => {
     },
   });
 
-  const imageStyles = useAnimatedStyle(() => {
+  const flatlistStyles = useAnimatedStyle(() => {
     return {
       height: interpolate(
         scroll.value,
         [0, height * 0.5],
         [height * 0.65, height * 0.1]
       ),
-    };
-  });
-
-  const flatlistStyles = useAnimatedStyle(() => {
-    return {
-      transform: [
-        {
-          scale: interpolate(scroll.value, [-100, 0, 1], [1.4, 1, 1], {
-            extrapolateLeft: Extrapolate.CLAMP,
-          }),
-        },
-      ],
     };
   });
 
@@ -230,11 +237,11 @@ export const ProductDetails = (props) => {
           },
           {
             label: "Recomendar",
-            ref: reviewsRef,
+            ref: suggestionsRef,
             onPress: () => {},
           },
         ]}
-        breakPoints={sectionsBreakPoints}
+        breakPoints={sectionsMeasures || [0, 1]}
       />
 
       <Animated.ScrollView
@@ -245,7 +252,7 @@ export const ProductDetails = (props) => {
           data={productImages}
           keyExtractor={(_, index) => String(index)}
           renderItem={({ item, index }: ListRenderItemInfo<string>) => (
-            <Animated.View style={[styles.imageWrapper, imageStyles]}>
+            <Animated.View style={[styles.imageWrapper]}>
               <Image source={{ uri: item }} style={styles.image} />
               <View style={styles.itemsLength}>
                 <Text style={styles.itemsLengthText}>
@@ -259,6 +266,7 @@ export const ProductDetails = (props) => {
           pagingEnabled
           showsHorizontalScrollIndicator={false}
         />
+
         <ProductInfo
           price={25.99}
           title="Coração ocasional Regata & Camisa"
@@ -267,83 +275,8 @@ export const ProductDetails = (props) => {
           sizes={sizes}
         />
         <Shipping />
-        <Comments ref={commentsRef} />
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text ref={reviewsRef}>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
-        <Text>123</Text>
+        <CommentsSection ref={commentsRef} />
+        <SuggestionsSection ref={suggestionsRef} scroll={scroll} />
       </Animated.ScrollView>
       <View style={styles.footer}>
         {isFavorite ? (

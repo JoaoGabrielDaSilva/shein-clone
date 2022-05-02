@@ -32,11 +32,11 @@ export const Navbar = ({ navigation, middleComponent }: Props) => {
 
 const styles = StyleSheet.create({
   container: {
+    height: 50,
     backgroundColor: "#FFFFFF",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 10,
     paddingHorizontal: 20,
   },
   middle: {
